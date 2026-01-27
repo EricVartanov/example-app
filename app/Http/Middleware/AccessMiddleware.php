@@ -16,7 +16,7 @@ class AccessMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->query('access') !== 'yes') {
-            return response('Access denied', 403);
+            return abort(403);
         }
 
         return $next($request);
