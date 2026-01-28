@@ -3,15 +3,40 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
     /**
      * Список проектов
      */
-    public function index()
+    public function index(): View
     {
-        return 'Список проектов';
+        //$projects = project::query()->with('owner')->get();
+        $projects = collect([
+            (object) [
+                'id' => 1,
+                'name' => 'CRM System',
+                'owner_id' => 1,
+                'assignee_id' => 2,
+                'is_active' => true,
+                'deadline_date' => '2026-03-01',
+                'created_at' => '2026-01-10 10:00:00',
+                'updated_at' => '2026-01-15 12:30:00',
+            ],
+            (object) [
+                'id' => 2,
+                'name' => 'Landing Page',
+                'owner_id' => 1,
+                'assignee_id' => null,
+                'is_active' => false,
+                'deadline_date' => '2026-02-15',
+                'created_at' => '2026-01-12 09:20:00',
+                'updated_at' => '2026-01-20 18:00:00',
+            ],
+        ]);
+
+        return view('pages.project.index', compact('projects'));
     }
 
     /**
@@ -19,7 +44,7 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        return 'Форма создания проекта';
+        return view('pages.project.create');
     }
 
     /**
@@ -35,7 +60,18 @@ class ProjectController extends Controller
      */
     public function show(string $id)
     {
-        return 'Показать проект';
+        $project = (object) [
+            'id' => 1,
+            'name' => 'CRM System',
+            'owner_id' => 1,
+            'assignee_id' => 2,
+            'is_active' => true,
+            'deadline_date' => '2026-03-01',
+            'created_at' => '2026-01-10 10:00:00',
+            'updated_at' => '2026-01-15 12:30:00',
+        ];
+
+        return view('pages.project.show', compact('project'));
     }
 
     /**
@@ -43,7 +79,18 @@ class ProjectController extends Controller
      */
     public function edit(string $id)
     {
-        return 'Форма редактирования проекта';
+        $project = (object) [
+            'id' => 1,
+            'name' => 'CRM System',
+            'owner_id' => 1,
+            'assignee_id' => 2,
+            'is_active' => true,
+            'deadline_date' => '2026-03-01',
+            'created_at' => '2026-01-10 10:00:00',
+            'updated_at' => '2026-01-15 12:30:00',
+        ];
+
+        return view('pages.project.edit', compact('project'));
     }
 
     /**

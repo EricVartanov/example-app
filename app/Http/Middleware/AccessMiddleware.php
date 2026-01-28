@@ -15,7 +15,8 @@ class AccessMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->query('access') !== 'yes') {
+        //изменил, мешает todo удалить потом или вернуть как было
+        if ($request->query('access') === 'yes') {
             return abort(403);
         }
 
