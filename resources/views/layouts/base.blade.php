@@ -16,4 +16,6 @@
 </main>
 
 </body>
+
+<x-flash-alert />
 </html>

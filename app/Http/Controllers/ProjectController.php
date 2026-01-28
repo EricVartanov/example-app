@@ -106,6 +106,6 @@ class ProjectController extends Controller
      */
     public function destroy(string $id)
     {
-        return 'Удалить проект';
+        return redirect()->route('projects.index')->with('success', 'Проект удален');
     }
 }
