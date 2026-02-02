@@ -26,8 +26,15 @@ class Project extends Model
         ];
     }
 
+    //Владелец проекта
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    //Ответственный проекта
+    public function assignee()
+    {
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 }

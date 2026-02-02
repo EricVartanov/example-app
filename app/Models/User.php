@@ -23,7 +23,7 @@ class User extends Authenticatable
         'phone',
         'password',
         'role',
-        'is_blocked'
+        'is_blocked',
     ];
 
     protected function casts(): array
@@ -67,8 +67,15 @@ class User extends Authenticatable
         return $query;
     }
 
-    public function projects()
+    //Проекты пользователя
+    public function ownedProjects()
     {
-        return $this->hasMany(Project::class);
+        return $this->hasMany(Project::class, 'owner_id');
+    }
+
+    //Проекты, в которых пользователь ответственный
+    public function assignedProjects()
+    {
+        return $this->hasMany(Project::class, 'assignee_id');
     }
 }
