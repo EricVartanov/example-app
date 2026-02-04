@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
-use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\View\View;
 
 class ProjectController extends Controller
@@ -13,7 +15,7 @@ class ProjectController extends Controller
      */
     public function index(): View
     {
-        $projects = Project::all();
+        $projects = Project::all()->sortBy('id');
 
         return view('pages.project.index', compact('projects'));
     }
@@ -23,15 +25,28 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        return view('pages.project.create');
+        //С точки зрения бизнес логики это неправильно, но лучше так,
+        // чем по умолчанию ответственного указывать создателя.
+        //Передаю пользователей для выбора ответственного
+        $users = User::select('id', 'username')->orderBy('username')->get();
+
+        return view('pages.project.create', compact('users'));
     }
 
     /**
      * Создать проект
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
-        return 'Создать проект';
+        $validated = $request->validated();
+        Project::create([
+            ...$request->validated(),
+            'owner_id' => auth()->id(),
+        ]);
+
+        return redirect()
+            ->route('projects.index')
+            ->with('success', 'Проект создан');
     }
 
     /**
@@ -39,7 +54,10 @@ class ProjectController extends Controller
      */
     public function show(string $id)
     {
-        $project = Project::where('id', $id)->firstOrFail();
+        $project = Project::with([
+            'assignee:id,username',
+            'owner:id,username',
+        ])->findOrFail($id);
 
         return view('pages.project.show', compact('project'));
     }
@@ -50,16 +68,24 @@ class ProjectController extends Controller
     public function edit(string $id)
     {
         $project = Project::where('id', $id)->firstOrFail();
+        $users = User::select('id', 'username')->orderBy('username')->get();
 
-        return view('pages.project.edit', compact('project'));
+        return view('pages.project.edit', compact(['project', 'users']));
     }
 
     /**
      * Обновить проект
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProjectRequest $request, string $id)
     {
-        return 'Обновить проект';
+        Project::create([
+            ...$request->validated(),
+            'owner_id' => auth()->id(),
+        ]);
+
+        return redirect()
+            ->route('projects.show', ['project' => $id])
+            ->with('success', 'Проект обновлен');
     }
 
     /**
@@ -69,10 +95,12 @@ class ProjectController extends Controller
     {
         $project = Project::where('id', $id)->first();
 
-        if (!empty($project)) {
+        if ( ! empty($project)) {
             $project->delete();
         }
 
-        return redirect()->route('projects.index')->with('success', 'Проект удален');
+        return redirect()
+            ->route('projects.index')
+            ->with('success', 'Проект удален');
     }
 }

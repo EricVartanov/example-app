@@ -26,6 +26,16 @@
         </tr>
 
         <tr>
+            <td><strong>Владелец</strong></td>
+            <td>{{ $project->owner->username }}</td>
+        </tr>
+
+        <tr>
+            <td><strong>Ответственный</strong></td>
+            <td>{{ $project->assignee->username }}</td>
+        </tr>
+
+        <tr>
             <td><strong>Дедлайн</strong></td>
             <td>{{ $project->deadline_date ?? '—' }}</td>
         </tr>
