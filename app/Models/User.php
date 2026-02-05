@@ -78,4 +78,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Project::class, 'assignee_id');
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 }

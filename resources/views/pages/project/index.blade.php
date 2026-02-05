@@ -7,10 +7,12 @@
     <div class="g-titlebar">
         <h1>Проекты</h1>
 
-        <a href="{{ route('projects.create') }}"
-           class="g-button right">
-            + Создать проект
-        </a>
+        @can('create', App\Models\Project::class)
+            <a href="{{ route('projects.create') }}"
+               class="g-button right">
+                + Создать проект
+            </a>
+        @endcan
     </div>
 
     <div class="g-tablewrapper">
@@ -59,25 +61,29 @@
                             👁
                         </a>
 
-                        <a href="{{ route('projects.edit', $project->id) }}"
-                           class="g-actionicon"
-                           title="Изменить">
-                            ✏️
-                        </a>
+                        @can('update', $project)
+                            <a href="{{ route('projects.edit', $project->id) }}"
+                               class="g-actionicon"
+                               title="Изменить">
+                                ✏️
+                            </a>
+                        @endcan
 
-                        <form action="{{ route('projects.destroy', $project->id) }}"
-                              method="POST"
-                              class="inline"
-                              onsubmit="return confirm('Delete this project?')">
-                            @csrf
-                            @method('DELETE')
+                        @can('delete', $project)
+                            <form action="{{ route('projects.destroy', $project->id) }}"
+                                  method="POST"
+                                  class="inline"
+                                  onsubmit="return confirm('Delete this project?')">
+                                @csrf
+                                @method('DELETE')
 
-                            <button type="submit"
-                                    class="g-actionicon danger"
-                                    title="Удалить">
-                                🗑
-                            </button>
-                        </form>
+                                <button type="submit"
+                                        class="g-actionicon danger"
+                                        title="Удалить">
+                                    🗑
+                                </button>
+                            </form>
+                        @endcan
                     </td>
 
                 </tr>

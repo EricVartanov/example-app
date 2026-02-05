@@ -6,6 +6,7 @@ use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class ProjectController extends Controller
@@ -15,6 +16,8 @@ class ProjectController extends Controller
      */
     public function index(): View
     {
+        Gate::authorize('viewAny', Project::class);
+
         $projects = Project::all()->sortBy('id');
 
         return view('pages.project.index', compact('projects'));
@@ -38,7 +41,8 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        $validated = $request->validated();
+        Gate::authorize('create', Project::class);
+
         Project::create([
             ...$request->validated(),
             'owner_id' => auth()->id(),
@@ -52,12 +56,13 @@ class ProjectController extends Controller
     /**
      * Показ одного проекта
      */
-    public function show(string $id)
+    public function show(Project $project)
     {
-        $project = Project::with([
-            'assignee:id,username',
-            'owner:id,username',
-        ])->findOrFail($id);
+        Gate::authorize('view', $project);
+
+        $project->load([
+            'assignee:id,username'
+        ]);
 
         return view('pages.project.show', compact('project'));
     }
@@ -65,9 +70,8 @@ class ProjectController extends Controller
     /**
      * Форма редактирования проекта
      */
-    public function edit(string $id)
+    public function edit(Project $project)
     {
-        $project = Project::where('id', $id)->firstOrFail();
         $users = User::select('id', 'username')->orderBy('username')->get();
 
         return view('pages.project.edit', compact(['project', 'users']));
@@ -76,28 +80,25 @@ class ProjectController extends Controller
     /**
      * Обновить проект
      */
-    public function update(UpdateProjectRequest $request, string $id)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
-        Project::create([
-            ...$request->validated(),
-            'owner_id' => auth()->id(),
-        ]);
+        Gate::authorize('update', $project);
+
+        $project->update($request->validated());
 
         return redirect()
-            ->route('projects.show', ['project' => $id])
+            ->route('projects.show', ['project' => $project])
             ->with('success', 'Проект обновлен');
     }
 
     /**
      * Удаление проекта
      */
-    public function destroy(string $id)
+    public function destroy(Project $project)
     {
-        $project = Project::where('id', $id)->first();
+        Gate::authorize('delete', $project);
 
-        if ( ! empty($project)) {
-            $project->delete();
-        }
+        $project->delete();
 
         return redirect()
             ->route('projects.index')
