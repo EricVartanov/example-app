@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use Faker\Factory as Faker;
+use Illuminate\Support\Facades\Auth;
 
 class DevController extends Controller
 {
@@ -83,5 +85,39 @@ class DevController extends Controller
                 'assignee_id' => $faker->numberBetween(1, 6),
                 'deadline_date' => $faker->dateTimeBetween('now', '+6 months'),
             ]);
+    }
+
+    //получить последние 3 проекта авторизованного или из общих проектов
+    public function getMyLatestThree()
+    {
+        //для теста авторизованных
+        //$user = User::find(1);
+        //Auth::login($user);
+
+        if (auth()->check()) {
+            return Project::query()
+                ->where('owner_id', auth()->id())
+                ->latest()
+                ->take(3)->get();
+        }
+
+        return Project::query()
+            ->latest()
+            ->take(3)
+            ->get();
+    }
+
+    // возвращает массив со списком пользователей и кол-вом их проектов
+    public function usersProjects()
+    {
+        return User::query()
+            ->withCount('ownedProjects')
+            ->pluck('owned_projects_count', 'username');
+    }
+
+    //возвращает кол-во проектов с истекшим сроком
+    public function getExpiredProjectsCount()
+    {
+        return Project::expired()->count();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Project extends Model
 {
@@ -36,5 +37,10 @@ class Project extends Model
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assignee_id');
+    }
+
+    public function scopeExpired(Builder $query): Builder
+    {
+        return $query->where('deadline_date', '<', now());
     }
 }
