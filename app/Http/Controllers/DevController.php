@@ -28,4 +28,10 @@ class DevController extends Controller
     public function test()
     {
     }
+
+    //возвращает конфиги dummyjson
+    public function getDummyConfig(): array
+    {
+        return config('services.dummyjson');
+    }
 }
